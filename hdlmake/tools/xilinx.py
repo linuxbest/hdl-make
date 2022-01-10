@@ -68,6 +68,7 @@ $(TCL_CLOSE)'''
                                'source files.tcl\n'
                                'update_compile_order -fileset sources_1\n'
                                'update_compile_order -fileset sim_1\n'
+                               '{1}\n'
                                '$(TCL_CLOSE)',
                     'synthesize': _XILINX_RUN,
                     'par': _XILINX_RUN,
@@ -129,12 +130,17 @@ $(TCL_CLOSE)'''
                     project_new.append(tmp.format(prop[0], prop[1], prop[2]))
                 else:
                     logging.error('Unknown project property: %s', prop[0])
+
+        project_incs = 'set_property include_dirs {{{0}}} [get_filesets sources_1]'.format(
+            " ".join(self.manifest_dict.get("include_dirs", []))
+        )
+
         tmp_dict = {}
         tmp_dict["project"] = self._tcl_controls["project"]
         tmp_dict["synthesize"] = self._tcl_controls["synthesize"]
         tmp_dict["par"] = self._tcl_controls["par"]
         self._tcl_controls["project"] = tmp_dict["project"].format(
-            "\n".join(project_new))
+            "\n".join(project_new), project_incs)
         self._tcl_controls["synthesize"] = tmp_dict["synthesize"].format(
             "synth_1",
             "\n".join(synthesize_new))
